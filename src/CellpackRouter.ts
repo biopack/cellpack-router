@@ -1,10 +1,10 @@
-
 import * as Path from "path"
 import * as appRoot from "app-root-path"
 import * as Lodash from "lodash"
-
+import * as Promise from "bluebird"
+//
 import { Cellpack, Connection, Transmitter, Route } from "microb"
-
+//
 import * as NamedJsRegexp from "named-js-regexp"
 
 export default class CellpackRouter extends Cellpack {
@@ -17,20 +17,26 @@ export default class CellpackRouter extends Cellpack {
     // }
 
     init(){
-        let routes = null
+        this.config = this.environment.get("cellpacks")["cellpack-router"]
+        let routes = []
 
         if(Lodash.isString(this.config.routes)){
             if(!Path.isAbsolute(this.config.routes)) routes = require(`${appRoot}/config/${this.config.routes}`)
             else routes = require(this.config.routes)
         } else if(Lodash.isArray(this.config.routes)){
-
+            routes = this.config.routes
         } else if(Lodash.isObject(this.config.routes)){
-
+            routes.push(this.config.routes)
+        } else if(Lodash.isFunction(this.config.routes)){
+            routes = this.config.routes()
         } else {
             throw new Error("Bad routes config option")
         }
 
         if(Lodash.isArray(routes)) this.initRoutes(routes)
+        else if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Routes are not array: ${routes}`)
+
+        return Promise.resolve()
     }
 
     request(connection: Connection){
@@ -47,24 +53,22 @@ export default class CellpackRouter extends Cellpack {
                                     Lodash.set(matched,defName,route.defaults.get(defName))
                                 }
                                 connection.request.attributes.set(defName,Lodash.get(matched,defName))
-                                // if(matched[defName] === ""){
-
-                                // }
-                                /*if(matched[defName] === ""){
-                                    matched[defName] = route.defaults[defName]
-                                }
-                                connection.request.attributes.set(defName,matched[defName])*/
                             })
                         }
+
                         connection.environment.set('route',route)
+
+                        // return Promise.resolve(true)
                     }
                 }
             }
         })
-        return true
+
+        return Promise.resolve(true)
     }
 
     private initRoutes(routes: Array<any>): void {
+        if(this.environment.get('debug')) this.transmitter.emit("log.cellpack.router",`Routes found: ${routes.length}`)
         routes.forEach((routeDefinition,index,arr) => {
             this.add(routeDefinition)
         })
