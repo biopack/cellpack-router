@@ -100,7 +100,10 @@ export default class CellpackRouter extends Cellpack {
     private add(routeDefinition: any): void {
         // TODO: validation
         let r = routeDefinition
-        r.options._regex = r.path.replace(/:([a-z0-9_-]+)/gi,`:<$1>`).replace(/\//g,"\\/")
+        // replace backslash before attribute
+        // replace attribute name to named regexp
+        // replace replace backslash
+        r.options._regex = r.path.replace(/\/:/,"\/{0,1}:").replace(/:([a-z0-9_-]+)/gi,`:<$1>`).replace(/\//g,"\\/")
         r.options._regex = `^${r.options._regex}$`
         if(!Lodash.isUndefined(r.requirements)){
             Object.keys(r.requirements).forEach((name,index,len) => {
