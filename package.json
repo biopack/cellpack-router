@@ -1,6 +1,6 @@
 {
   "name": "cellpack-router",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "description": "Cellpack module for Microb framework integrated routing",
   "keywords": [
       "Microb","mvc","framework","web","router"

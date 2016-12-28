@@ -76,7 +76,7 @@ export default class CellpackRouter extends Cellpack {
                         connection.environment.set('route',route)
                         // return Promise.resolve(true)
                     } else {
-                        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route RegExp test failed: ${route.name} - ${route.options.get("_regex")}`)
+                        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route RegExp test failed: ${route.name} - ${connection.request.path} - ${route.options.get("_regex")}`)
                     }
                 } else {
                     if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route Method test failed: ${route.name} - ${connection.request.method}`)
