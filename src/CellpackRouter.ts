@@ -75,8 +75,14 @@ export default class CellpackRouter extends Cellpack {
 
                         connection.environment.set('route',route)
                         // return Promise.resolve(true)
+                    } else {
+                        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route RegExp test failed: ${route.name} - ${route.options.get("_regex")}`)
                     }
+                } else {
+                    if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route Method test failed: ${route.name} - ${connection.request.method}`)
                 }
+            } else {
+                if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route Host test failed: ${route.name} - ${connection.request.host}`)
             }
         })
 
@@ -86,6 +92,7 @@ export default class CellpackRouter extends Cellpack {
     private initRoutes(routes: Array<any>): void {
         if(this.environment.get('debug')) this.transmitter.emit("log.cellpack.router",`Routes found: ${routes.length}`)
         routes.forEach((routeDefinition,index,arr) => {
+            if(this.environment.get('debug')) this.transmitter.emit("log.cellpack.router",`\t+ ${routeDefinition.name}`)
             this.add(routeDefinition)
         })
     }
