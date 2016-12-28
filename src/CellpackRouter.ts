@@ -107,7 +107,7 @@ export default class CellpackRouter extends Cellpack {
                 r.options._regex = r.options._regex.replace(new RegExp(`:<(${name})>`,"g"),`(:<$1>${r.requirements[name]})`)
             })
         }
-        r.host = new RegExp(`^${r.host}$`)
+        r.host = new RegExp(`^(${r.host})$`)
 
         let route = new Route(
             r.name,
