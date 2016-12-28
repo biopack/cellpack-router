@@ -47,17 +47,33 @@ export default class CellpackRouter extends Cellpack {
                     let matched = NamedJsRegexp(route.options.get("_regex")).execGroups(connection.request.path)
 
                     if(!Lodash.isNull(matched)){ // Route found
-                        if(!Lodash.isUndefined(route.defaults)){
-                            Object.keys(route.defaults).forEach((defName: string, index: number, arr: Array<string>) => {
-                                if(Lodash.get(matched,defName) === ""){
+                        // attributes
+                        Object.keys(matched).forEach((match, index, arr) => {
+                            // default attribute value
+                            if(Lodash.isEmpty(matched[match]) && route.defaults.has(match)){
+                                Lodash.set(matched,match,route.defaults.get(match))
+                            } else if(!Lodash.isEmpty(matched[match])){ // empty attributes = false has() on ParameterBag
+                                connection.request.attributes.set(match,matched[match])
+                            }
+                        })
+
+                        /*
+                        if(!Lodash.isUndefined(route.defaults)){ // else?
+                            Object.keys(route.defaults.all()).forEach((defName: string, index: number, arr: Array<string>) => {
+
+                                console.log(`LL1: ${Lodash.get(matched,defName)}`)
+
+                                if(Lodash.isEmpty(Lodash.get(matched,defName)) || Lodash.isUndefined(Lodash.get(matched,defName))){
                                     Lodash.set(matched,defName,route.defaults.get(defName))
                                 }
+
+                                console.log(`LL2: ${Lodash.get(matched,defName)}`)
+
                                 connection.request.attributes.set(defName,Lodash.get(matched,defName))
                             })
-                        }
+                        }*/
 
                         connection.environment.set('route',route)
-
                         // return Promise.resolve(true)
                     }
                 }
