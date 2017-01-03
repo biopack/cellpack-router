@@ -52,7 +52,8 @@ export default class CellpackRouter extends Cellpack {
                             // default attribute value
                             if(Lodash.isEmpty(matched[match]) && route.defaults.has(match)){
                                 Lodash.set(matched,match,route.defaults.get(match))
-                            } else if(!Lodash.isEmpty(matched[match])){ // empty attributes = false has() on ParameterBag
+                            }
+                            if(!Lodash.isEmpty(matched[match])){ // empty attributes = false has() on ParameterBag
                                 connection.request.attributes.set(match,matched[match])
                             }
                         })
