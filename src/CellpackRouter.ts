@@ -36,6 +36,17 @@ export default class CellpackRouter extends Cellpack {
         if(Lodash.isArray(routes)) this.initRoutes(routes)
         else if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Routes are not array: ${routes}`)
 
+        this.environment.add("template.functions",{
+            name: "path",
+            class: this,
+            func: this.path
+        })
+        this.environment.add("template.functions",{
+            name: "url",
+            class: this,
+            func: this.url
+        })
+
         return Promise.resolve()
     }
 
@@ -125,6 +136,56 @@ export default class CellpackRouter extends Cellpack {
 
         this.routes.push(route)
         this.routesByName[route.name] = route
+    }
+
+    path(routeName: string, params?: any): string {
+        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Render path for ${routeName} with ${params}`)
+        let error = ""
+        params = params || {}
+        let route = this.get(routeName)
+        let path = route.path
+        let items = path.match(/:([a-z0-9_-]+)/gi)
+        if(!Lodash.isNull(items)){
+            let cleaned = (<RegExpMatchArray>items).map(item => { return item.replace(':','') })
+            cleaned.forEach((attributeName,index,arr) => {
+                let requirement = route.requirements.get(attributeName)
+                let value = params[attributeName] || route.defaults.get(attributeName)
+
+                if(!Lodash.isUndefined(requirement)){
+                    let reqtestRegExp = new RegExp(requirement,'gi')
+                    if(Lodash.isUndefined(value)) value = ""
+                    let reqtest = value.match(reqtestRegExp)
+                    if(Lodash.isNull(reqtest)) error = `Bad route attribute '${attributeName}' for route: '${routeName}'`
+                }
+
+                if(value === "") path = path.replace(`:${attributeName}/`,value).replace(`:${attributeName}`,value)
+                else path = path.replace(`:${attributeName}`,value)
+            })
+        }
+
+        if(!Lodash.isEmpty(error)){
+            if(this.environment.get("debug")){
+                this.transmitter.emit("log.cellpack.router",error)
+                path = error
+            }
+        }
+
+        return path
+    }
+
+    url(uri: string, params?: any): string {
+        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Render path for ${uri} with ${params}`)
+        let error = ""
+        params = params || {}
+        let items = uri.match(/:([a-z0-9_-]+)/gi)
+        if(!Lodash.isNull(items)){
+            let cleaned = (<RegExpMatchArray>items).map(item => { return item.replace(':','') })
+            cleaned.forEach((attributeName,index,arr) => {
+                let value = params[attributeName] || ""
+                uri = uri.replace(`:${attributeName}/`,value).replace(`:${attributeName}`,value)
+            })
+        }
+        return uri
     }
 
     get(routeName: string): Route {
