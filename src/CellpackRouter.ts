@@ -58,6 +58,7 @@ export default class CellpackRouter extends Cellpack {
                     let matched = NamedJsRegexp(route.options.get("_regex")).execGroups(connection.request.path)
 
                     if(!Lodash.isNull(matched)){ // Route found
+                        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route Found: ${route.name} - ${connection.request.path}`)
                         // attributes
                         Object.keys(matched).forEach((match, index, arr) => {
                             // default attribute value
@@ -139,7 +140,7 @@ export default class CellpackRouter extends Cellpack {
     }
 
     path(routeName: string, params?: any): string {
-        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Render path for ${routeName} with ${params}`)
+        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Return path for ${routeName} with ${params}`)
         let error = ""
         params = params || {}
         let route = this.get(routeName)
