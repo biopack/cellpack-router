@@ -2,10 +2,11 @@ import * as Path from "path"
 import * as appRoot from "app-root-path"
 import * as Lodash from "lodash"
 import * as Promise from "bluebird"
+import * as NamedJsRegexp from "named-js-regexp"
+import * as Util from "util"
 //
 import { Cellpack, Connection, Transmitter, Route } from "microb"
 //
-import * as NamedJsRegexp from "named-js-regexp"
 
 export default class CellpackRouter extends Cellpack {
 
@@ -140,7 +141,7 @@ export default class CellpackRouter extends Cellpack {
     }
 
     path(routeName: string, params?: any): string {
-        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Return path for ${routeName} with ${params}`)
+        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Return path for ${routeName} with ${Util.inspect(params)}`)
         let error = ""
         params = params || {}
         let route = this.get(routeName)
@@ -175,7 +176,7 @@ export default class CellpackRouter extends Cellpack {
     }
 
     url(uri: string, params?: any): string {
-        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Render path for ${uri} with ${params}`)
+        if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Render path for ${uri} with ${Util.inspect(params)}`)
         let error = ""
         params = params || {}
         let items = uri.match(/:([a-z0-9_-]+)/gi)
