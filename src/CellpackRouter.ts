@@ -61,6 +61,11 @@ export default class CellpackRouter extends Cellpack {
                     if(!Lodash.isNull(matched)){ // Route found
                         if(this.environment.get("debug")) this.transmitter.emit("log.cellpack.router",`Route Found: ${route.name} - ${connection.request.path}`)
                         // attributes
+                        // defaults
+                        Object.keys(route.defaults.all()).forEach(defaultsKey => {
+                            connection.request.attributes.set(defaultsKey,route.defaults.get(defaultsKey))
+                        })
+                        // from matched
                         Object.keys(matched).forEach((match, index, arr) => {
                             // default attribute value
                             if(Lodash.isEmpty(matched[match]) && route.defaults.has(match)){
